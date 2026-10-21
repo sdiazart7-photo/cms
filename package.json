@@ -1,0 +1,8 @@
+{
+  "name": "finite-cms",
+  "private": true,
+  "description": "Panel de contenido de Finite Estudio. Las funciones usan solo APIs nativas de Node 18+, sin dependencias.",
+  "scripts": {
+    "test": "node test/roundtrip.js"
+  }
+}

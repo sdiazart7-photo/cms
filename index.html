@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel · Finite Estudio</title>
+<link rel="icon" href="https://res.cloudinary.com/drrhn6t1c/image/upload/f_auto,q_auto/v1789854970/icon-fe_lduvnp.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-glacial-indifference@1.1.14/index.css">
+<style>
+:root{
+  --crema:#f3ece1; --suave:#ebe2d3; --tinta:#1b1b1b; --tinta2:#5b4a47;
+  --vino:#440f14; --vino2:#8a5a5c; --linea:#d9cdb9; --blanco:#fffdf9;
+  --ok:#2f6b3a; --okbg:#e6f0e3; --mal:#9b2c2c; --malbg:#f6e3e1; --aviso:#8a6300; --avisobg:#f7edcf;
+  --display:'Cormorant Garamond',Georgia,serif; --ui:'Glacial Indifference','Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--crema);color:var(--tinta);font-family:var(--ui);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);font-weight:500;margin:0;line-height:1.15}
+a{color:var(--vino)}
+button{font:inherit;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit;width:100%;background:var(--blanco);border:1px solid var(--linea);border-radius:2px;padding:10px 12px;margin-top:6px}
+input:focus,textarea:focus,select:focus,[contenteditable]:focus{outline:2px solid var(--vino);outline-offset:-1px}
+textarea{resize:vertical;min-height:84px}
+label{display:block;font-size:.82rem;letter-spacing:.04em;color:var(--tinta2);margin-bottom:16px}
+.hint{display:block;font-size:.78rem;color:var(--tinta2);margin-top:5px;letter-spacing:0}
+[hidden]{display:none!important}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--vino);color:var(--crema);border:1px solid var(--vino);padding:11px 22px;border-radius:2px;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;transition:transform .2s,box-shadow .2s,filter .2s;text-decoration:none}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 22px -14px rgba(68,15,20,.6)}
+.btn:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
+.btn.ghost{background:transparent;color:var(--vino)}
+.btn.small{padding:7px 14px;font-size:.7rem}
+.btn.danger{background:transparent;color:var(--mal);border-color:#d8aaa6}
+.link{background:none;border:none;color:var(--vino);text-decoration:underline;text-underline-offset:3px;padding:0;font-size:.85rem}
+
+/* Login */
+.login{max-width:380px;margin:14vh auto 0;padding:0 24px;text-align:center}
+.login h1{font-size:2.6rem;font-style:italic;margin-bottom:6px}
+.login p{color:var(--tinta2);margin:0 0 26px}
+.login form{text-align:left}
+.login .btn{width:100%;justify-content:center;margin-top:6px}
+
+/* Estructura */
+.topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--crema) 94%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+.topbar .in{max-width:1040px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-size:1.4rem;font-style:italic;margin-right:auto}
+.tabs{display:flex;gap:4px}
+.tab{background:none;border:none;padding:8px 14px;font-size:.82rem;letter-spacing:.06em;color:var(--tinta2);border-bottom:2px solid transparent}
+.tab.on{color:var(--vino);border-bottom-color:var(--vino)}
+main{max-width:1040px;margin:0 auto;padding:34px 24px 140px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.head h1{font-size:2.5rem;font-style:italic}
+.head p{margin:6px 0 0;color:var(--tinta2);max-width:560px}
+.card{background:var(--blanco);border:1px solid var(--linea);border-radius:2px;padding:26px;margin-bottom:20px}
+.card h2{font-size:1.55rem;font-style:italic;color:var(--vino);margin-bottom:4px}
+.card .sub{color:var(--tinta2);font-size:.88rem;margin:0 0 20px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:18px}
+@media(max-width:720px){.row2,.row3{grid-template-columns:1fr}.head h1{font-size:2rem}}
+
+/* Mensajes */
+.banner{padding:12px 16px;border-radius:2px;margin-bottom:18px;font-size:.92rem}
+.banner.ok{background:var(--okbg);color:var(--ok);border:1px solid #bcd6b6}
+.banner.err{background:var(--malbg);color:var(--mal);border:1px solid #e0b9b5}
+.banner.info{background:var(--avisobg);color:var(--aviso);border:1px solid #e8d79b}
+
+/* Lista de posts */
+.post{display:flex;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--linea)}
+.post:last-child{border-bottom:none}
+.post img{width:84px;height:56px;object-fit:cover;border-radius:2px;background:var(--suave);flex:none}
+.post .info{flex:1;min-width:0}
+.post .t{font-family:var(--display);font-size:1.25rem;font-style:italic;line-height:1.2}
+.post .m{font-size:.78rem;color:var(--tinta2);letter-spacing:.06em;margin-top:3px}
+.post .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media(max-width:620px){.post{flex-wrap:wrap}.post .acts{width:100%;justify-content:flex-start}}
+.empty{color:var(--tinta2);padding:20px 0;text-align:center}
+
+/* Campos de imagen */
+.imgfield{display:grid;grid-template-columns:132px 1fr;gap:16px;align-items:start;padding:14px;border:1px dashed var(--linea);border-radius:2px;margin-bottom:12px;background:#fffaf2}
+.imgfield .thumb{width:132px;height:100px;background:var(--suave) center/cover no-repeat;border-radius:2px;display:flex;align-items:center;justify-content:center;color:var(--tinta2);font-size:.75rem;text-align:center}
+.imgfield label{margin-bottom:10px}
+.imgfield .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+@media(max-width:560px){.imgfield{grid-template-columns:1fr}.imgfield .thumb{width:100%;height:160px}}
+
+/* Editor */
+.etabs{display:flex;gap:2px;border-bottom:1px solid var(--linea);margin-bottom:0}
+.etab{background:none;border:none;padding:9px 16px;font-size:.8rem;letter-spacing:.06em;color:var(--tinta2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.etab.on{color:var(--vino);border-bottom-color:var(--vino)}
+.toolbar{display:flex;gap:4px;flex-wrap:wrap;align-items:center;padding:8px;background:var(--suave);border:1px solid var(--linea);border-top:none;position:sticky;top:57px;z-index:5}
+.toolbar button{background:var(--blanco);border:1px solid var(--linea);border-radius:2px;padding:6px 10px;font-size:.82rem;min-width:34px;color:var(--tinta)}
+.toolbar button:hover{border-color:var(--vino);color:var(--vino)}
+.toolbar .sep{width:1px;height:22px;background:var(--linea);margin:0 4px}
+#editor{min-height:420px;border:1px solid var(--linea);border-top:none;background:var(--blanco);padding:28px 30px;font-size:1.05rem;line-height:1.75}
+#editor p{margin:0 0 18px}
+#editor h2{font-size:1.9rem;font-style:italic;color:var(--vino);margin:34px 0 12px}
+#editor h3{font-size:1.4rem;margin:26px 0 10px}
+#editor img{display:block;max-width:100%;height:auto;margin:22px auto;border-radius:2px;cursor:pointer;outline:1px solid transparent}
+#editor img:hover{outline-color:var(--vino)}
+#editor ul,#editor ol{padding-left:24px;margin:0 0 18px}
+#editor blockquote{margin:26px 0;padding:4px 0 4px 20px;border-left:2px solid var(--vino);font-family:var(--display);font-style:italic;font-size:1.4rem;color:var(--vino)}
+#editor a{color:#1a56db;text-decoration:underline}
+#editor .article-cta{background:var(--vino);color:var(--crema);text-align:center;padding:30px 20px;margin:28px 0;border-radius:2px}
+#editor .article-cta p{font-family:var(--display);font-style:italic;font-size:1.35rem;color:var(--crema);margin:0 0 14px}
+#editor .article-cta a{display:inline-block;background:var(--crema);color:var(--vino);padding:10px 22px;text-decoration:none;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase}
+#html{min-height:420px;font-family:ui-monospace,Menlo,monospace;font-size:.82rem;border-top:none;border-radius:0;margin:0;line-height:1.5}
+#previewWrap{border:1px solid var(--linea);border-top:none;background:#fff}
+#preview{width:100%;height:720px;border:0;display:block}
+.pvbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;background:var(--suave);font-size:.8rem;color:var(--tinta2)}
+
+/* FAQ, relacionados */
+.qa{border:1px solid var(--linea);border-radius:2px;padding:16px;margin-bottom:12px;background:#fffaf2}
+.qa .bar{display:flex;gap:6px;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:.78rem;color:var(--tinta2);letter-spacing:.08em;text-transform:uppercase}
+.qa .bar .b{display:flex;gap:6px}
+.qa label{margin-bottom:10px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px}
+@media(max-width:720px){.checks{grid-template-columns:1fr}}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;padding:6px 0;margin:0;color:var(--tinta);letter-spacing:0;cursor:pointer}
+.check input{width:auto;margin:4px 0 0}
+.check small{display:block;color:var(--tinta2);font-size:.75rem}
+
+/* Revisión SEO */
+.seo{list-style:none;margin:0;padding:0}
+.seo li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--linea);font-size:.9rem}
+.seo li:last-child{border-bottom:none}
+.seo .dot{flex:none;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#fff;margin-top:1px}
+.seo .ok .dot{background:var(--ok)} .seo .warn .dot{background:#b98a00} .seo .bad .dot{background:var(--mal)}
+.seo small{display:block;color:var(--tinta2);font-size:.78rem}
+.counter{float:right;font-size:.75rem;color:var(--tinta2)}
+.counter.ok{color:var(--ok)} .counter.warn{color:var(--aviso)}
+
+/* Barra de acciones */
+.actions{position:fixed;left:0;right:0;bottom:0;z-index:30;background:color-mix(in srgb,var(--crema) 96%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--linea)}
+.actions .in{max-width:1040px;margin:0 auto;padding:12px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.actions .grow{margin-right:auto;font-size:.82rem;color:var(--tinta2)}
+
+/* Portafolio */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.pcard{border:1px solid var(--linea);background:#fffaf2;padding:10px;border-radius:2px}
+.pcard .ph{aspect-ratio:3/2;background:var(--suave) center/cover no-repeat;border-radius:2px;margin-bottom:8px}
+.pcard textarea{min-height:64px;font-size:.85rem;margin:0 0 8px}
+.pcard .b{display:flex;gap:6px;justify-content:space-between}
+
+/* Diálogos */
+dialog{border:1px solid var(--linea);border-radius:2px;background:var(--crema);padding:26px;width:min(520px,92vw);color:var(--tinta)}
+dialog::backdrop{background:rgba(27,27,27,.45)}
+dialog h2{font-size:1.7rem;font-style:italic;color:var(--vino);margin-bottom:16px}
+dialog .foot{display:flex;gap:10px;justify-content:flex-end;margin-top:6px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--tinta);color:var(--crema);padding:12px 20px;border-radius:2px;font-size:.9rem;z-index:60;max-width:90vw}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .7s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ═════════ Acceso ═════════ -->
+<section id="login" class="login" hidden>
+  <h1>Finite Estudio</h1>
+  <p>Panel de contenido</p>
+  <form id="loginForm">
+    <div id="loginErr" class="banner err" hidden></div>
+    <label>Contraseña
+      <input type="password" id="pw" autocomplete="current-password" required autofocus>
+    </label>
+    <button class="btn" type="submit" id="loginBtn">Entrar</button>
+  </form>
+</section>
+
+<!-- ═════════ App ═════════ -->
+<div id="app" hidden>
+  <header class="topbar"><div class="in">
+    <span class="brand">Finite Estudio</span>
+    <nav class="tabs">
+      <button class="tab on" data-view="list">Blog</button>
+      <button class="tab" data-view="faqs">Preguntas frecuentes</button>
+      <button class="tab" data-view="port">Portafolio</button>
+    </nav>
+    <button class="link" id="logout">Salir</button>
+  </div></header>
+
+  <main>
+    <div id="flash"></div>
+
+    <!-- Lista de posts -->
+    <section id="v-list">
+      <div class="head">
+        <div><h1>Blog</h1><p id="listSub">Cada cambio queda publicado en tu sitio en cerca de un minuto.</p></div>
+        <button class="btn" id="newPost">Nuevo post</button>
+      </div>
+      <div class="card"><div id="posts"><div class="empty"><span class="spin"></span></div></div></div>
+    </section>
+
+    <!-- Editor de post -->
+    <section id="v-editor" hidden>
+      <div class="head">
+        <div><h1 id="edTitle">Nuevo post</h1><p>Todo lo que llenes aquí se convierte en la misma página que ya tienen tus artículos: menú, pixel, datos para Google y pie de página incluidos.</p></div>
+        <button class="link" id="backList">← Volver al listado</button>
+      </div>
+
+      <div class="card">
+        <h2>Lo básico</h2>
+        <p class="sub">Con esto se arma el encabezado del artículo y su tarjeta en el blog.</p>
+        <label>Título del artículo
+          <input id="f-title" maxlength="140" placeholder="Ej. 5 lugares para tu boda en Valle de Guadalupe">
+          <span class="hint">Es el H1 de la página. Los títulos entre 40 y 65 caracteres se leen completos en Google.</span>
+        </label>
+        <label>Título corto para la tarjeta del blog (opcional)
+          <input id="f-cardTitle" maxlength="140" placeholder="Déjalo vacío para usar el mismo título">
+          <span class="hint">Sirve cuando el título completo es largo y en la tarjeta se ve mejor una versión breve.</span>
+        </label>
+        <div class="row3">
+          <label>Dirección del artículo (slug)
+            <input id="f-slug" maxlength="100" placeholder="lugares-boda-valle-de-guadalupe">
+            <span class="hint" id="slugHint"></span>
+          </label>
+          <label>Categoría
+            <input id="f-category" list="cats" placeholder="Lugares">
+            <datalist id="cats"></datalist>
+          </label>
+          <label>Fecha
+            <input id="f-date" type="date">
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Para Google y redes sociales</h2>
+        <p class="sub">Este texto aparece debajo del título en los resultados de búsqueda y al compartir el enlace.</p>
+        <label>Descripción para Google <span class="counter" id="cnt-meta"></span>
+          <textarea id="f-meta" rows="3" maxlength="300"></textarea>
+          <span class="hint">Entre 110 y 160 caracteres. Una frase que invite a hacer clic, con la palabra clave principal al inicio.</span>
+        </label>
+        <label>Descripción para redes (opcional)
+          <textarea id="f-og" rows="2" maxlength="300"></textarea>
+          <span class="hint">Si la dejas vacía se usa la de Google.</span>
+        </label>
+      </div>
+
+      <div class="card">
+        <h2>Fotos de portada</h2>
+        <p class="sub">La foto principal es la de la tarjeta del blog y la que se ve al compartir el enlace.</p>
+        <div id="cover"></div>
+        <h3 style="font-size:1.25rem;margin:18px 0 6px">Cuadrícula bajo el título (opcional, hasta 4 fotos)</h3>
+        <p class="sub" style="margin-bottom:12px">Tira de fotos verticales que se muestra antes del texto.</p>
+        <div id="grid"></div>
+        <button class="btn ghost small" id="addGrid">Agregar foto a la cuadrícula</button>
+      </div>
+
+      <div class="card">
+        <h2>Artículo</h2>
+        <p class="sub">Escribe aquí. Los subtítulos (H2) ordenan el texto y también ayudan a Google a entenderlo.</p>
+        <div class="etabs">
+          <button class="etab on" data-et="write">Escribir</button>
+          <button class="etab" data-et="html">HTML</button>
+          <button class="etab" data-et="preview">Vista previa</button>
+        </div>
+        <div id="pane-write">
+          <div class="toolbar" id="toolbar">
+            <button data-cmd="h2" title="Subtítulo principal">Subtítulo</button>
+            <button data-cmd="h3" title="Subtítulo menor">Menor</button>
+            <button data-cmd="p" title="Párrafo normal">Párrafo</button>
+            <span class="sep"></span>
+            <button data-cmd="bold" title="Negrita"><b>N</b></button>
+            <button data-cmd="italic" title="Cursiva"><i>C</i></button>
+            <button data-cmd="link" title="Enlace">Enlace</button>
+            <button data-cmd="unlink" title="Quitar enlace">Sin enlace</button>
+            <span class="sep"></span>
+            <button data-cmd="ul" title="Lista">• Lista</button>
+            <button data-cmd="quote" title="Cita destacada">Cita</button>
+            <button data-cmd="image" title="Foto">Foto</button>
+            <button data-cmd="cta" title="Bloque con botón">Botón</button>
+            <span class="sep"></span>
+            <button data-cmd="undo" title="Deshacer">↶</button>
+            <button data-cmd="redo" title="Rehacer">↷</button>
+          </div>
+          <div id="editor" contenteditable="true" spellcheck="true"></div>
+        </div>
+        <div id="pane-html" hidden><textarea id="html" spellcheck="false"></textarea></div>
+        <div id="pane-preview" hidden>
+          <div id="previewWrap">
+            <div class="pvbar"><span>Así se verá publicado (sin guardar nada)</span><button class="link" id="reloadPreview">Actualizar</button></div>
+            <iframe id="preview" sandbox="allow-popups" title="Vista previa del artículo"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Preguntas frecuentes</h2>
+        <p class="sub">Aparecen al final del artículo y se envían a Google como datos estructurados, lo que ayuda a ganar espacio en los resultados.</p>
+        <label>Título de la sección
+          <input id="f-faqTitle" placeholder="Preguntas frecuentes sobre ...">
+        </label>
+        <div id="faqs"></div>
+        <button class="btn ghost small" id="addFaq">Agregar pregunta</button>
+      </div>
+
+      <div class="card">
+        <h2>Sigue leyendo</h2>
+        <p class="sub">Artículos que se muestran al final. Enlazar entre posts mantiene a los lectores más tiempo en el sitio.</p>
+        <div class="checks" id="related"></div>
+      </div>
+
+      <div class="card">
+        <h2>Revisión antes de publicar</h2>
+        <p class="sub">Un repaso rápido, con el motivo de cada punto.</p>
+        <ul class="seo" id="seo"></ul>
+      </div>
+    </section>
+
+    <!-- Preguntas frecuentes de la home -->
+    <section id="v-faqs" hidden>
+      <div class="head">
+        <div><h1>Preguntas frecuentes</h1><p>Las que aparecen en la página de inicio. Puedes usar <b>&lt;strong&gt;</b> para negritas y <b>&lt;a href="..."&gt;</b> para enlaces.</p></div>
+        <button class="btn" id="saveFaqs">Guardar cambios</button>
+      </div>
+      <div class="card"><div id="homeFaqs"><div class="empty"><span class="spin"></span></div></div>
+        <button class="btn ghost small" id="addHomeFaq">Agregar pregunta</button></div>
+    </section>
+
+    <!-- Portafolio de la home -->
+    <section id="v-port" hidden>
+      <div class="head">
+        <div><h1>Portafolio</h1><p>Las fotos de la home, en el orden en que se muestran. Cada foto necesita un texto que describa qué se ve (ayuda a Google y a quien usa lector de pantalla).</p></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn ghost" id="addPortUrl">Agregar por enlace</button>
+          <button class="btn ghost" id="addPortUpload" hidden>Subir fotos</button>
+          <button class="btn" id="savePort">Guardar cambios</button>
+        </div>
+      </div>
+      <div class="card"><div class="grid" id="homePort"><div class="empty"><span class="spin"></span></div></div></div>
+      <input type="file" id="portFiles" accept="image/*" multiple hidden>
+    </section>
+  </main>
+
+  <div class="actions" id="actions" hidden><div class="in">
+    <span class="grow" id="actInfo"></span>
+    <button class="btn danger small" id="delPost" hidden>Despublicar</button>
+    <button class="btn ghost" id="btnPreview">Vista previa</button>
+    <button class="btn" id="btnSave">Publicar</button>
+  </div></div>
+</div>
+
+<!-- Diálogos -->
+<dialog id="dlgLink">
+  <h2>Enlace</h2>
+  <label>Dirección<input id="lk-url" placeholder="/blog/otro-articulo/ o https://..."><span class="hint">Para enlazar otro artículo usa su ruta, por ejemplo /blog/mi-articulo/</span></label>
+  <label class="check"><input type="checkbox" id="lk-new"> Abrir en una pestaña nueva</label>
+  <div class="foot"><button class="btn ghost" data-close>Cancelar</button><button class="btn" id="lk-ok">Aplicar</button></div>
+</dialog>
+
+<dialog id="dlgImage">
+  <h2>Foto</h2>
+  <label>Dirección de la foto<input id="im-url" placeholder="https://res.cloudinary.com/..."></label>
+  <div style="margin:-6px 0 14px"><button class="btn ghost small" id="im-upload" hidden>Subir desde mi computadora</button><input type="file" id="im-file" accept="image/*" hidden></div>
+  <label>Texto alternativo<input id="im-alt" placeholder="Describe lo que se ve en la foto"><span class="hint">Obligatorio: Google lo lee para entender la imagen.</span></label>
+  <div class="foot"><button class="btn danger" id="im-del" hidden>Quitar foto</button><button class="btn ghost" data-close>Cancelar</button><button class="btn" id="im-ok">Aplicar</button></div>
+</dialog>
+
+<dialog id="dlgCta">
+  <h2>Bloque con botón</h2>
+  <label>Texto<textarea id="ct-text" rows="2" placeholder="¿Ya tienen fecha? Cuéntennos y les ayudamos a escoger."></textarea></label>
+  <div class="row2">
+    <label>Texto del botón<input id="ct-label" placeholder="Consultar disponibilidad"></label>
+    <label>Enlace del botón<input id="ct-url" value="/#contacto"></label>
+  </div>
+  <div class="foot"><button class="btn ghost" data-close>Cancelar</button><button class="btn" id="ct-ok">Insertar</button></div>
+</dialog>
+
+<script>
+(function () {
+'use strict';
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const state = { pw: '', cfg: null, posts: [], form: null, isNew: true, dirty: false, etab: 'write', slugTouched: false, savedRange: null };
+
+try { state.pw = sessionStorage.getItem('fe-pw') || ''; } catch (e) {}
+
+// ───────────── API ─────────────
+async function api(name, { method = 'GET', query, body } = {}) {
+  const url = `/.netlify/functions/${name}${query ? '?' + new URLSearchParams(query) : ''}`;
+  let res;
+  try {
+    res = await fetch(url, { method, headers: { 'x-admin-password': state.pw, ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  } catch (e) { throw new Error('No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.'); }
+  const data = await res.json().catch(() => ({ error: 'El servidor respondió algo inesperado.' }));
+  if (res.status === 401 && state.cfg) { logout('La sesión se cerró. Entra de nuevo.'); throw new Error(data.error); }
+  if (!res.ok) throw new Error(data.error || 'Algo salió mal.');
+  return data;
+}
+
+// ───────────── Mensajes ─────────────
+let toastT;
+function toast(msg) {
+  $$('.toast').forEach((n) => n.remove());
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
+  clearTimeout(toastT); toastT = setTimeout(() => t.remove(), 3200);
+}
+function flash(kind, html) {
+  $('#flash').innerHTML = `<div class="banner ${kind}">${html}</div>`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+const clearFlash = () => { $('#flash').innerHTML = ''; };
+function busy(btn, on, label) {
+  if (on) { btn.dataset.l = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="spin"></span> ${label || ''}`; }
+  else { btn.disabled = false; if (btn.dataset.l) btn.innerHTML = btn.dataset.l; }
+}
+
+// ───────────── Acceso ─────────────
+function showLogin(msg) {
+  $('#app').hidden = true; $('#login').hidden = false;
+  const e = $('#loginErr'); e.hidden = !msg; e.textContent = msg || '';
+  setTimeout(() => $('#pw').focus(), 0);
+}
+function logout(msg) {
+  state.pw = ''; state.cfg = null;
+  try { sessionStorage.removeItem('fe-pw'); } catch (e) {}
+  showLogin(msg);
+}
+$('#loginForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  state.pw = $('#pw').value;
+  const btn = $('#loginBtn'); busy(btn, true, 'Entrando');
+  try {
+    const data = await api('posts-list');
+    try { sessionStorage.setItem('fe-pw', state.pw); } catch (e) {}
+    start(data);
+  } catch (e) { state.pw = ''; showLogin(e.message); }
+  busy(btn, false); $('#pw').value = '';
+});
+$('#logout').addEventListener('click', () => { if (confirmLeave()) logout(); });
+
+function start(data) {
+  state.cfg = data; state.posts = data.posts;
+  $('#login').hidden = true; $('#app').hidden = false;
+  $('#cats').innerHTML = data.categories.map((c) => `<option value="${esc(c)}">`).join('');
+  $('#addPortUpload').hidden = !data.cloud.enabled;
+  go('list');
+  renderPosts();
+}
+
+// ───────────── Navegación ─────────────
+function confirmLeave() {
+  if (!state.dirty) return true;
+  return confirm('Tienes cambios sin publicar. ¿Salir de todos modos?');
+}
+function go(view) {
+  ['list', 'editor', 'faqs', 'port'].forEach((v) => { $(`#v-${v}`).hidden = v !== view; });
+  $$('.tab').forEach((t) => t.classList.toggle('on', t.dataset.view === (view === 'editor' ? 'list' : view)));
+  $('#actions').hidden = view !== 'editor';
+  clearFlash();
+  window.scrollTo(0, 0);
+}
+$$('.tab').forEach((t) => t.addEventListener('click', () => {
+  if (!confirmLeave()) return;
+  state.dirty = false;
+  const v = t.dataset.view;
+  go(v);
+  if (v === 'list') refreshPosts();
+  if (v === 'faqs') loadHomeFaqs();
+  if (v === 'port') loadPortfolio();
+}));
+window.addEventListener('beforeunload', (e) => { if (state.dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+// ───────────── Lista de posts ─────────────
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const fecha = (iso) => { const [y, m, d] = String(iso).split('-').map(Number); return d ? `${d} de ${MESES[m - 1]}, ${y}` : ''; };
+
+function renderPosts() {
+  const box = $('#posts');
+  if (!state.posts.length) { box.innerHTML = '<div class="empty">Todavía no hay posts. Crea el primero con el botón de arriba.</div>'; return; }
+  box.innerHTML = state.posts.map((p) => `
+    <div class="post">
+      <img src="${esc(thumb(p.img))}" alt="">
+      <div class="info"><div class="t">${esc(p.title)}</div><div class="m">${esc(p.tag).toUpperCase()} · ${fecha(p.date)}</div></div>
+      <div class="acts">
+        <a class="btn ghost small" href="${state.cfg.origin}/blog/${esc(p.slug)}/" target="_blank" rel="noopener">Ver</a>
+        <button class="btn small" data-edit="${esc(p.slug)}">Editar</button>
+      </div>
+    </div>`).join('');
+  $$('[data-edit]', box).forEach((b) => b.addEventListener('click', () => openPost(b.dataset.edit, b)));
+  $('#listSub').textContent = `${state.posts.length} artículos publicados. Cada cambio queda en tu sitio en cerca de un minuto.`;
+}
+function thumb(url) { return String(url).replace(/(\/image\/upload\/)(?:[a-z]{1,3}_[^/]+\/)?/, '$1f_auto,q_auto,w_240/'); }
+async function refreshPosts() {
+  try { const d = await api('posts-list'); state.cfg = d; state.posts = d.posts; renderPosts(); } catch (e) { flash('err', esc(e.message)); }
+}
+
+// ───────────── Editor: formulario ─────────────
+const blankPost = () => ({
+  slug: '', title: '', cardTitle: '', category: '', date: new Date().toISOString().slice(0, 10), metaDescription: '', ogDescription: '',
+  coverImage: '', coverAlt: '', gridImages: [], bodyHtml: '', faqTitle: 'Preguntas frecuentes', faqs: [], related: [],
+});
+
+$('#newPost').addEventListener('click', () => {
+  const f = blankPost();
+  state.isNew = true; state.slugTouched = false;
+  openEditor(f);
+});
+
+async function openPost(slug, btn) {
+  busy(btn, true, '');
+  try {
+    const { post } = await api('post-get', { query: { slug } });
+    state.isNew = false; state.slugTouched = true;
+    openEditor(post);
+  } catch (e) { flash('err', esc(e.message)); }
+  busy(btn, false);
+}
+
+function openEditor(post) {
+  state.form = { ...post, gridImages: (post.gridImages || []).map((g) => ({ ...g })), faqs: (post.faqs || []).map((f) => ({ ...f })), related: [...(post.related || [])] };
+  const f = state.form;
+  $('#edTitle').textContent = state.isNew ? 'Nuevo post' : 'Editar post';
+  $('#f-title').value = f.title; $('#f-cardTitle').value = f.cardTitle || '';
+  $('#f-slug').value = f.slug; $('#f-slug').disabled = !state.isNew;
+  $('#f-category').value = f.category; $('#f-date').value = f.date;
+  $('#f-meta').value = f.metaDescription; $('#f-og').value = f.ogDescription || '';
+  $('#f-faqTitle').value = f.faqTitle || 'Preguntas frecuentes';
+  setBody(f.bodyHtml);
+  setEtab('write');
+  renderCover(); renderGrid(); renderFaqs(); renderRelated();
+  if (state.isNew) suggestRelated();
+  updateMeta(); updateSlugHint(); runSeo();
+  $('#delPost').hidden = state.isNew;
+  $('#btnSave').textContent = state.isNew ? 'Publicar' : 'Guardar cambios';
+  state.dirty = false; setInfo();
+  go('editor');
+  setTimeout(() => $('#f-title').focus(), 50);
+}
+function setInfo() { $('#actInfo').textContent = state.dirty ? 'Cambios sin publicar' : ''; }
+function touch() { state.dirty = true; setInfo(); scheduleSeo(); }
+
+function slugify(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ñ/g, 'n')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 90).replace(/-+$/, '');
+}
+function updateSlugHint() {
+  const s = $('#f-slug').value.trim();
+  $('#slugHint').textContent = state.isNew ? `${state.cfg.origin}/blog/${s || '...'}/ (no se puede cambiar después)` : `${state.cfg.origin}/blog/${s}/`;
+}
+function updateMeta() {
+  const n = $('#f-meta').value.trim().length, c = $('#cnt-meta');
+  c.textContent = `${n} caracteres`;
+  c.className = 'counter ' + (n >= 110 && n <= 160 ? 'ok' : n ? 'warn' : '');
+}
+
+$('#f-title').addEventListener('input', () => {
+  if (state.isNew && !state.slugTouched) { $('#f-slug').value = slugify($('#f-title').value); updateSlugHint(); }
+  touch();
+});
+$('#f-slug').addEventListener('input', () => { state.slugTouched = true; updateSlugHint(); touch(); });
+$('#f-meta').addEventListener('input', () => { updateMeta(); touch(); });
+['f-cardTitle', 'f-category', 'f-date', 'f-og', 'f-faqTitle'].forEach((id) => $('#' + id).addEventListener('input', touch));
+
+// ───────────── Campos de imagen ─────────────
+async function uploadImage(file, kind) {
+  if (!state.cfg.cloud.enabled) throw new Error('Para subir fotos desde el panel falta configurar Cloudinary en Netlify. Mientras tanto puedes pegar la dirección de la foto.');
+  if (file.size > 10 * 1024 * 1024) throw new Error('La foto pesa más de 10 MB. Exporta una versión más ligera.');
+  const sig = await api('upload-sign', { method: 'POST', body: { kind, slug: ($('#f-slug').value || '').trim() } });
+  const fd = new FormData();
+  fd.append('file', file); fd.append('api_key', sig.apiKey); fd.append('signature', sig.signature);
+  Object.entries(sig.fields).forEach(([k, v]) => fd.append(k, v));
+  const res = await fetch(sig.uploadUrl, { method: 'POST', body: fd });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.secure_url) throw new Error((data.error && data.error.message) || 'Cloudinary no pudo recibir la foto.');
+  return data.secure_url;
+}
+
+// data = { src, alt }; onRemove opcional.
+function mountImage(el, data, { kind = 'blog', onRemove, srcKey = 'src', label = 'Foto' } = {}) {
+  el.className = 'imgfield';
+  el.innerHTML = `
+    <div class="thumb"></div>
+    <div>
+      <label>${esc(label)} (dirección)<input data-k="src" placeholder="https://res.cloudinary.com/..."></label>
+      <label>Texto alternativo<input data-k="alt" placeholder="Describe lo que se ve"></label>
+      <div class="acts">
+        ${state.cfg.cloud.enabled ? '<button type="button" class="btn ghost small" data-up>Subir foto</button>' : ''}
+        ${onRemove ? '<button type="button" class="btn danger small" data-rm>Quitar</button>' : ''}
+        <input type="file" accept="image/*" hidden>
+      </div>
+    </div>`;
+  const src = $('[data-k="src"]', el), alt = $('[data-k="alt"]', el), th = $('.thumb', el), file = $('input[type=file]', el);
+  const paint = () => {
+    const u = data[srcKey];
+    th.style.backgroundImage = u ? `url("${thumb(u)}")` : '';
+    th.textContent = u ? '' : 'Sin foto';
+  };
+  src.value = data[srcKey] || ''; alt.value = data.alt || ''; paint();
+  src.addEventListener('input', () => { data[srcKey] = src.value.trim(); paint(); touch(); });
+  alt.addEventListener('input', () => { data.alt = alt.value; touch(); });
+  const up = $('[data-up]', el);
+  if (up) {
+    up.addEventListener('click', () => file.click());
+    file.addEventListener('change', async () => {
+      if (!file.files[0]) return;
+      busy(up, true, 'Subiendo');
+      try { data[srcKey] = await uploadImage(file.files[0], kind); src.value = data[srcKey]; paint(); touch(); toast('Foto subida'); }
+      catch (e) { flash('err', esc(e.message)); }
+      busy(up, false); file.value = '';
+    });
+  }
+  if (onRemove) $('[data-rm]', el).addEventListener('click', onRemove);
+}
+
+function renderCover() {
+  const f = state.form;
+  const proxy = { get src() { return f.coverImage; }, set src(v) { f.coverImage = v; }, get alt() { return f.coverAlt; }, set alt(v) { f.coverAlt = v; } };
+  mountImage($('#cover'), proxy, { label: 'Foto principal' });
+}
+function renderGrid() {
+  const f = state.form, box = $('#grid');
+  box.innerHTML = '';
+  f.gridImages.forEach((g, i) => {
+    const d = document.createElement('div'); box.appendChild(d);
+    mountImage(d, g, { label: `Foto ${i + 1}`, onRemove: () => { f.gridImages.splice(i, 1); renderGrid(); touch(); } });
+  });
+  $('#addGrid').hidden = f.gridImages.length >= 4;
+}
+$('#addGrid').addEventListener('click', () => { state.form.gridImages.push({ src: '', alt: '' }); renderGrid(); touch(); });
+
+// ───────────── Preguntas frecuentes del post ─────────────
+function renderFaqs() {
+  const f = state.form, box = $('#faqs');
+  if (!f.faqs.length) { box.innerHTML = '<p class="hint" style="margin:0 0 14px">Sin preguntas por ahora. Dos o tres bien elegidas ya suman.</p>'; return; }
+  box.innerHTML = f.faqs.map((q, i) => `
+    <div class="qa" data-i="${i}">
+      <div class="bar"><span>Pregunta ${i + 1}</span><span class="b">
+        <button type="button" class="btn ghost small" data-act="up" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button type="button" class="btn ghost small" data-act="down" ${i === f.faqs.length - 1 ? 'disabled' : ''}>↓</button>
+        <button type="button" class="btn danger small" data-act="rm">Quitar</button></span></div>
+      <label>Pregunta<input data-k="q" value="${esc(q.q)}"></label>
+      <label>Respuesta<textarea data-k="a" rows="3">${esc(q.a)}</textarea></label>
+    </div>`).join('');
+  bindQa(box, f.faqs, renderFaqs);
+}
+function bindQa(box, list, rerender) {
+  $$('.qa', box).forEach((row) => {
+    const i = Number(row.dataset.i);
+    $$('[data-k]', row).forEach((inp) => inp.addEventListener('input', () => { list[i][inp.dataset.k] = inp.value; touch(); }));
+    $$('[data-act]', row).forEach((b) => b.addEventListener('click', () => {
+      const a = b.dataset.act;
+      if (a === 'rm') list.splice(i, 1);
+      if (a === 'up' && i > 0) [list[i - 1], list[i]] = [list[i], list[i - 1]];
+      if (a === 'down' && i < list.length - 1) [list[i + 1], list[i]] = [list[i], list[i + 1]];
+      rerender(); touch();
+    }));
+  });
+}
+$('#addFaq').addEventListener('click', () => { state.form.faqs.push({ q: '', a: '' }); renderFaqs(); touch(); });
+
+// ───────────── Relacionados ─────────────
+function renderRelated() {
+  const f = state.form, max = state.cfg.relatedMax;
+  const others = state.posts.filter((p) => p.slug !== f.slug);
+  const box = $('#related');
+  if (!others.length) { box.innerHTML = '<p class="hint">Cuando haya más artículos podrás enlazarlos aquí.</p>'; return; }
+  box.innerHTML = others.map((p) => `<label class="check"><input type="checkbox" value="${esc(p.slug)}" ${f.related.includes(p.slug) ? 'checked' : ''}><span>${esc(p.title)}<small>${esc(p.tag)} · ${fecha(p.date)}</small></span></label>`).join('');
+  $$('input', box).forEach((c) => c.addEventListener('change', () => {
+    f.related = $$('input:checked', box).map((x) => x.value);
+    if (f.related.length > max) { c.checked = false; f.related = $$('input:checked', box).map((x) => x.value); toast(`Máximo ${max} artículos`); }
+    touch();
+  }));
+}
+function suggestRelated() {
+  const f = state.form, cat = $('#f-category').value.trim();
+  const sorted = [...state.posts].sort((a, b) => b.date.localeCompare(a.date));
+  const pick = [...sorted.filter((p) => p.tag === cat), ...sorted.filter((p) => p.tag !== cat)].slice(0, 4).map((p) => p.slug);
+  f.related = pick; renderRelated();
+}
+$('#f-category').addEventListener('change', () => { if (state.isNew && state.form) suggestRelated(); });
+
+// ───────────── Editor de texto ─────────────
+const editor = $('#editor');
+try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (e) {}
+
+function setBody(html) {
+  editor.innerHTML = html || '<p><br></p>';
+  $('#html').value = html || '';
+}
+function getBody() {
+  const raw = state.etab === 'html' ? $('#html').value : editor.innerHTML;
+  return raw;
+}
+function setEtab(t) {
+  const prev = state.etab;
+  if (prev === 'write' && t !== 'write') $('#html').value = editor.innerHTML;
+  if (prev === 'html' && t !== 'html') editor.innerHTML = $('#html').value || '<p><br></p>';
+  state.etab = t;
+  $$('.etab').forEach((b) => b.classList.toggle('on', b.dataset.et === t));
+  $('#pane-write').hidden = t !== 'write'; $('#pane-html').hidden = t !== 'html'; $('#pane-preview').hidden = t !== 'preview';
+  if (t === 'preview') loadPreview();
+}
+$$('.etab').forEach((b) => b.addEventListener('click', () => setEtab(b.dataset.et)));
+editor.addEventListener('input', touch);
+$('#html').addEventListener('input', touch);
+
+document.addEventListener('selectionchange', () => {
+  const s = window.getSelection();
+  if (s.rangeCount && editor.contains(s.anchorNode)) state.savedRange = s.getRangeAt(0).cloneRange();
+});
+function restoreRange() {
+  editor.focus();
+  if (state.savedRange) { const s = window.getSelection(); s.removeAllRanges(); s.addRange(state.savedRange); }
+}
+function insertHtml(html) { restoreRange(); document.execCommand('insertHTML', false, html); touch(); }
+
+// Pegar como texto plano: evita arrastrar estilos de Word o de otras páginas.
+editor.addEventListener('paste', (e) => {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  const html = text.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean).map((p) => `<p>${esc(p).replace(/\n/g, ' ')}</p>`).join('');
+  document.execCommand('insertHTML', false, html || esc(text));
+});
+
+$('#toolbar').addEventListener('mousedown', (e) => { if (e.target.closest('button')) e.preventDefault(); });
+$('#toolbar').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  const c = b.dataset.cmd;
+  editor.focus();
+  if (c === 'h2' || c === 'h3' || c === 'p') document.execCommand('formatBlock', false, `<${c}>`);
+  else if (c === 'quote') document.execCommand('formatBlock', false, '<blockquote>');
+  else if (c === 'bold') document.execCommand('bold');
+  else if (c === 'italic') document.execCommand('italic');
+  else if (c === 'ul') document.execCommand('insertUnorderedList');
+  else if (c === 'unlink') document.execCommand('unlink');
+  else if (c === 'undo') document.execCommand('undo');
+  else if (c === 'redo') document.execCommand('redo');
+  else if (c === 'link') openLink();
+  else if (c === 'image') openImage(null);
+  else if (c === 'cta') openCta();
+  touch();
+});
+
+// Diálogos
+$$('dialog [data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+
+function openLink() {
+  const sel = window.getSelection();
+  if (!sel.toString() && !(state.savedRange && state.savedRange.toString())) { toast('Selecciona primero el texto que será el enlace'); return; }
+  $('#lk-url').value = ''; $('#lk-new').checked = false; $('#dlgLink').showModal(); $('#lk-url').focus();
+}
+$('#lk-ok').addEventListener('click', () => {
+  const url = $('#lk-url').value.trim();
+  if (!url) return;
+  if (!/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url)) { toast('La dirección debe empezar con https://, / o #'); return; }
+  $('#dlgLink').close(); restoreRange();
+  document.execCommand('createLink', false, url);
+  if ($('#lk-new').checked) { const a = window.getSelection().anchorNode.parentElement.closest('a'); if (a) { a.target = '_blank'; a.rel = 'noopener'; } }
+  touch();
+});
+
+let imgTarget = null;
+function openImage(img) {
+  imgTarget = img;
+  $('#im-url').value = img ? img.getAttribute('src') : ''; $('#im-alt').value = img ? img.getAttribute('alt') || '' : '';
+  $('#im-del').hidden = !img; $('#im-upload').hidden = !state.cfg.cloud.enabled;
+  $('#dlgImage').showModal(); $('#im-url').focus();
+}
+editor.addEventListener('click', (e) => { if (e.target.tagName === 'IMG') openImage(e.target); });
+$('#im-upload').addEventListener('click', () => $('#im-file').click());
+$('#im-file').addEventListener('change', async () => {
+  const f = $('#im-file').files[0]; if (!f) return;
+  const b = $('#im-upload'); busy(b, true, 'Subiendo');
+  try { $('#im-url').value = await uploadImage(f, 'blog'); } catch (e) { toast(e.message); }
+  busy(b, false); $('#im-file').value = '';
+});
+$('#im-ok').addEventListener('click', () => {
+  const url = $('#im-url').value.trim(), alt = $('#im-alt').value.trim();
+  if (!/^https:\/\//i.test(url)) { toast('Falta la dirección de la foto (https://...)'); return; }
+  if (!alt) { toast('Escribe el texto alternativo'); return; }
+  $('#dlgImage').close();
+  if (imgTarget) { imgTarget.src = url; imgTarget.alt = alt; touch(); }
+  else insertHtml(`<img src="${esc(url)}" alt="${esc(alt)}"><p><br></p>`);
+});
+$('#im-del').addEventListener('click', () => { if (imgTarget) { imgTarget.remove(); touch(); } $('#dlgImage').close(); });
+
+function openCta() { $('#ct-text').value = ''; $('#ct-label').value = ''; $('#ct-url').value = '/#contacto'; $('#dlgCta').showModal(); $('#ct-text').focus(); }
+$('#ct-ok').addEventListener('click', () => {
+  const t = $('#ct-text').value.trim(), l = $('#ct-label').value.trim(), u = $('#ct-url').value.trim();
+  if (!t || !l || !u) { toast('Completa el texto, la etiqueta y el enlace'); return; }
+  $('#dlgCta').close();
+  insertHtml(`<div class="article-cta"><p>${esc(t)}</p><a href="${esc(u)}" class="btn btn-oro" data-track="contact">${esc(l)}</a></div><p><br></p>`);
+});
+
+// ───────────── Vista previa ─────────────
+function collect() {
+  const f = state.form;
+  return {
+    slug: $('#f-slug').value.trim(), title: $('#f-title').value.trim(), cardTitle: $('#f-cardTitle').value.trim(),
+    category: $('#f-category').value.trim(), date: $('#f-date').value, metaDescription: $('#f-meta').value.trim(),
+    ogDescription: $('#f-og').value.trim(), coverImage: (f.coverImage || '').trim(), coverAlt: (f.coverAlt || '').trim(),
+    gridImages: f.gridImages.filter((g) => g.src || g.alt).map((g) => ({ src: (g.src || '').trim(), alt: (g.alt || '').trim() })),
+    bodyHtml: getBody(), faqTitle: $('#f-faqTitle').value.trim(), faqs: f.faqs.filter((q) => q.q || q.a), related: f.related,
+  };
+}
+async function loadPreview() {
+  const frame = $('#preview');
+  frame.srcdoc = '<p style="font:16px sans-serif;padding:24px">Armando la vista previa…</p>';
+  try { const { html } = await api('post-preview', { method: 'POST', body: { post: collect() } }); frame.srcdoc = html; }
+  catch (e) { frame.srcdoc = `<p style="font:16px sans-serif;padding:24px;color:#9b2c2c">${esc(e.message)}</p>`; }
+}
+$('#reloadPreview').addEventListener('click', loadPreview);
+$('#btnPreview').addEventListener('click', () => { setEtab('preview'); $('#pane-preview').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+
+// ───────────── Revisión SEO ─────────────
+let seoT;
+function scheduleSeo() { clearTimeout(seoT); seoT = setTimeout(runSeo, 350); }
+function runSeo() {
+  if (!state.form) return;
+  const p = collect();
+  const tmp = document.createElement('div'); tmp.innerHTML = p.bodyHtml;
+  const words = (tmp.textContent || '').trim().split(/\s+/).filter(Boolean).length;
+  const imgs = $$('img', tmp), noAlt = imgs.filter((i) => !(i.getAttribute('alt') || '').trim()).length;
+  const h2 = $$('h2', tmp).length;
+  const internal = $$('a[href]', tmp).filter((a) => /^\/(?!\/)|finiteestudio\.com/.test(a.getAttribute('href'))).length;
+  const tl = p.title.length, ml = p.metaDescription.length;
+  const items = [
+    [tl >= 30 && tl <= 70 ? 'ok' : tl ? 'warn' : 'bad', `Título de ${tl} caracteres`, 'Google muestra cerca de 60. Más largo se corta con puntos suspensivos.'],
+    [ml >= 110 && ml <= 160 ? 'ok' : ml ? 'warn' : 'bad', `Descripción de ${ml} caracteres`, 'Entre 110 y 160 se muestra completa en los resultados.'],
+    [p.coverImage && p.coverAlt ? 'ok' : 'bad', 'Foto principal con texto alternativo', 'Es la imagen de la tarjeta y la que se ve al compartir el enlace.'],
+    [words >= 700 ? 'ok' : words >= 400 ? 'warn' : 'bad', `${words} palabras en el cuerpo`, 'Los artículos que resuelven una duda a fondo suelen superar las 700 palabras.'],
+    [h2 >= 3 ? 'ok' : h2 ? 'warn' : 'bad', `${h2} subtítulos (H2)`, 'Dividen el texto y le dicen a Google de qué trata cada parte.'],
+    [internal >= 2 ? 'ok' : internal ? 'warn' : 'bad', `${internal} enlaces a otras páginas del sitio`, 'Enlazar tus propios artículos reparte la visibilidad entre ellos.'],
+    [noAlt === 0 ? 'ok' : 'bad', imgs.length ? (noAlt ? `${noAlt} foto(s) del cuerpo sin texto alternativo` : `${imgs.length} foto(s) del cuerpo, todas con texto alternativo`) : 'Sin fotos dentro del cuerpo', 'El texto alternativo ayuda al posicionamiento en imágenes y a la accesibilidad.'],
+    [p.faqs.length >= 2 ? 'ok' : p.faqs.length ? 'warn' : 'warn', `${p.faqs.length} pregunta(s) frecuente(s)`, 'Se envían a Google como datos estructurados y pueden mostrarse como respuestas directas.'],
+    [p.slug && p.slug.length <= 75 ? 'ok' : 'warn', p.slug ? `Dirección de ${p.slug.length} caracteres` : 'Falta la dirección (slug)', 'Una dirección corta con palabras clave se entiende mejor y se comparte mejor.'],
+  ];
+  const sym = { ok: '✓', warn: '!', bad: '✕' };
+  $('#seo').innerHTML = items.map(([k, t, why]) => `<li class="${k}"><span class="dot">${sym[k]}</span><span>${esc(t)}<small>${esc(why)}</small></span></li>`).join('');
+}
+
+// ───────────── Publicar y despublicar ─────────────
+$('#btnSave').addEventListener('click', async () => {
+  const btn = $('#btnSave'), post = collect();
+  const miss = [];
+  if (!post.title) miss.push('el título');
+  if (!post.slug) miss.push('la dirección (slug)');
+  if (!post.category) miss.push('la categoría');
+  if (!post.metaDescription) miss.push('la descripción para Google');
+  if (!post.coverImage) miss.push('la foto principal');
+  if (!post.coverAlt) miss.push('el texto alternativo de la foto principal');
+  if (miss.length) { flash('err', `Falta ${miss.join(', ')}.`); return; }
+  busy(btn, true, state.isNew ? 'Publicando' : 'Guardando');
+  try {
+    const r = await api('post-save', { method: 'POST', body: { isNew: state.isNew, post } });
+    state.dirty = false; setInfo();
+    await refreshPosts();
+    go('list');
+    flash('ok', `Listo. <a href="${esc(r.url)}" target="_blank" rel="noopener">Ver el artículo</a>. Netlify tarda cerca de un minuto en reflejarlo en el sitio.`);
+  } catch (e) { flash('err', esc(e.message)); }
+  busy(btn, false);
+});
+
+$('#delPost').addEventListener('click', async () => {
+  const slug = state.form.slug;
+  if (!confirm(`¿Despublicar "${state.form.title}"?\n\nSe borra el artículo, su tarjeta y su línea del sitemap, y el enlace antiguo redirige al blog. Queda el historial en GitHub por si necesitas recuperarlo.`)) return;
+  const btn = $('#delPost'); busy(btn, true, 'Despublicando');
+  try {
+    const r = await api('post-delete', { method: 'POST', body: { slug } });
+    state.dirty = false; setInfo();
+    await refreshPosts(); go('list');
+    flash('ok', `Artículo despublicado${r.postsActualizados ? ` y quitado de la sección "Sigue leyendo" de ${r.postsActualizados} artículo(s)` : ''}.`);
+  } catch (e) { flash('err', esc(e.message)); }
+  busy(btn, false);
+});
+$('#backList').addEventListener('click', () => { if (!confirmLeave()) return; state.dirty = false; go('list'); });
+
+// ───────────── Preguntas frecuentes de la home ─────────────
+let homeFaqs = [];
+async function loadHomeFaqs() {
+  $('#homeFaqs').innerHTML = '<div class="empty"><span class="spin"></span></div>';
+  try {
+    homeFaqs = (await api('block-get', { query: { block: 'faqs' } })).items;
+    renderHomeFaqs();
+  } catch (e) { $('#homeFaqs').innerHTML = ''; flash('err', esc(e.message)); }
+}
+function renderHomeFaqs() {
+  const box = $('#homeFaqs');
+  box.innerHTML = homeFaqs.map((q, i) => `
+    <div class="qa" data-i="${i}">
+      <div class="bar"><span>Pregunta ${i + 1}</span><span class="b">
+        <button type="button" class="btn ghost small" data-act="up" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button type="button" class="btn ghost small" data-act="down" ${i === homeFaqs.length - 1 ? 'disabled' : ''}>↓</button>
+        <button type="button" class="btn danger small" data-act="rm">Quitar</button></span></div>
+      <label>Pregunta<input data-k="q" value="${esc(q.q)}"></label>
+      <label>Respuesta<textarea data-k="a" rows="3">${esc(q.a)}</textarea></label>
+    </div>`).join('');
+  bindQa(box, homeFaqs, renderHomeFaqs);
+}
+$('#addHomeFaq').addEventListener('click', () => { homeFaqs.push({ q: '', a: '' }); renderHomeFaqs(); state.dirty = true; });
+$('#saveFaqs').addEventListener('click', async () => {
+  const btn = $('#saveFaqs'); busy(btn, true, 'Guardando');
+  try {
+    await api('block-save', { method: 'POST', body: { block: 'faqs', items: homeFaqs } });
+    state.dirty = false; flash('ok', 'Preguntas frecuentes guardadas. Se verán en la home en cerca de un minuto.');
+  } catch (e) { flash('err', esc(e.message)); }
+  busy(btn, false);
+});
+
+// ───────────── Portafolio de la home ─────────────
+let homePort = [];
+async function loadPortfolio() {
+  $('#homePort').innerHTML = '<div class="empty"><span class="spin"></span></div>';
+  try { homePort = (await api('block-get', { query: { block: 'portafolio' } })).items; renderPortfolio(); }
+  catch (e) { $('#homePort').innerHTML = ''; flash('err', esc(e.message)); }
+}
+function renderPortfolio() {
+  const box = $('#homePort');
+  box.innerHTML = homePort.map((p, i) => `
+    <div class="pcard" data-i="${i}">
+      <div class="ph" style="background-image:url('${esc(thumb(p.url))}')"></div>
+      <textarea data-k="alt" placeholder="Describe qué se ve en la foto">${esc(p.alt)}</textarea>
+      <div class="b">
+        <span><button class="btn ghost small" data-act="up" ${i === 0 ? 'disabled' : ''}>←</button> <button class="btn ghost small" data-act="down" ${i === homePort.length - 1 ? 'disabled' : ''}>→</button></span>
+        <button class="btn danger small" data-act="rm">Quitar</button>
+      </div>
+    </div>`).join('') || '<div class="empty">Sin fotos. Agrega la primera.</div>';
+  $$('.pcard', box).forEach((c) => {
+    const i = Number(c.dataset.i);
+    $('textarea', c).addEventListener('input', (e) => { homePort[i].alt = e.target.value; state.dirty = true; });
+    $$('[data-act]', c).forEach((b) => b.addEventListener('click', () => {
+      const a = b.dataset.act;
+      if (a === 'rm') homePort.splice(i, 1);
+      if (a === 'up' && i > 0) [homePort[i - 1], homePort[i]] = [homePort[i], homePort[i - 1]];
+      if (a === 'down' && i < homePort.length - 1) [homePort[i + 1], homePort[i]] = [homePort[i], homePort[i + 1]];
+      renderPortfolio(); state.dirty = true;
+    }));
+  });
+}
+$('#addPortUrl').addEventListener('click', () => {
+  const url = (prompt('Dirección de la foto (https://...)') || '').trim();
+  if (!url) return;
+  if (!/^https:\/\//i.test(url)) { toast('La dirección debe empezar con https://'); return; }
+  homePort.push({ url, alt: '' }); renderPortfolio(); state.dirty = true;
+});
+$('#addPortUpload').addEventListener('click', () => $('#portFiles').click());
+$('#portFiles').addEventListener('change', async () => {
+  const files = [...$('#portFiles').files]; if (!files.length) return;
+  const btn = $('#addPortUpload'); busy(btn, true, 'Subiendo');
+  try {
+    for (const f of files) homePort.push({ url: await uploadImage(f, 'portafolio'), alt: '' });
+    renderPortfolio(); state.dirty = true; toast(`${files.length} foto(s) subida(s). Falta escribir su texto alternativo.`);
+  } catch (e) { flash('err', esc(e.message)); }
+  busy(btn, false); $('#portFiles').value = '';
+});
+$('#savePort').addEventListener('click', async () => {
+  const btn = $('#savePort'); busy(btn, true, 'Guardando');
+  try {
+    await api('block-save', { method: 'POST', body: { block: 'portafolio', items: homePort } });
+    state.dirty = false; flash('ok', 'Portafolio guardado. Se verá en la home en cerca de un minuto.');
+  } catch (e) { flash('err', esc(e.message)); }
+  busy(btn, false);
+});
+
+// ───────────── Arranque ─────────────
+(async function init() {
+  if (!state.pw) { showLogin(); return; }
+  try { start(await api('posts-list')); } catch (e) { state.pw = ''; showLogin(e.message); }
+})();
+
+})();
+</script>
+</body>
+</html>
