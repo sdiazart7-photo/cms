@@ -51,6 +51,13 @@ async function getFile(path, ref) {
   return res.text();
 }
 
+// Rutas de todos los archivos del repositorio en el commit dado.
+async function listFiles(sha) {
+  const c = await gh(`${repoPath}/git/commits/${sha}`);
+  const t = await gh(`${repoPath}/git/trees/${c.tree.sha}?recursive=1`);
+  return (t.tree || []).filter((e) => e.type === 'blob').map((e) => e.path);
+}
+
 // Un solo commit con varios archivos y borrados. Netlify despliega una vez.
 async function commit({ files = [], deletes = [] }, message, baseSha) {
   const base = await gh(`${repoPath}/git/commits/${baseSha}`);
@@ -80,4 +87,4 @@ async function commit({ files = [], deletes = [] }, message, baseSha) {
   return { commitSha: newCommit.sha, commitUrl: newCommit.html_url };
 }
 
-module.exports = { getHead, getFile, commit };
+module.exports = { getHead, getFile, commit, listFiles };

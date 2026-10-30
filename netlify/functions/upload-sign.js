@@ -12,6 +12,8 @@ exports.handler = endpoint('POST', async ({ body }) => {
   let folder;
   if (body.kind === 'portafolio') {
     folder = cfg.uploadFolders.portafolio;
+  } else if (body.kind === 'sitio') {
+    folder = cfg.uploadFolders.sitio;
   } else if (body.kind === 'blog') {
     const slug = String(body.slug || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 100) || 'sin-clasificar';
     folder = `${cfg.uploadFolders.blog}/${slug}`;

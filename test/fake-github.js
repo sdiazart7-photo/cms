@@ -31,6 +31,9 @@ global.fetch = async (url, opts = {}) => {
   if (p.endsWith('/git/ref/heads/main')) return res(200, { object: { sha: `c${headN}` } });
   let m;
   if ((m = /\/git\/commits\/(c\d+)$/.exec(p)) && method === 'GET') return res(200, { tree: { sha: `t${m[1]}` } });
+  if ((m = /\/git\/trees\/(t[^/]+)$/.exec(p)) && method === 'GET') {
+    return res(200, { tree: [...files.keys()].map((f) => ({ path: f, type: 'blob' })) });
+  }
   if (p.endsWith('/git/trees') && method === 'POST') {
     const id = `tree${trees.size}`;
     trees.set(id, JSON.parse(opts.body).tree);

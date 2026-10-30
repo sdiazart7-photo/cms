@@ -87,6 +87,56 @@ main{max-width:1040px;margin:0 auto;padding:34px 24px 140px}
 .imgfield .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
 @media(max-width:560px){.imgfield{grid-template-columns:1fr}.imgfield .thumb{width:100%;height:160px}}
 
+
+/* Editor del sitio */
+main.wide{max-width:none;padding:18px 20px 20px}
+.sbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.stitle{font-family:var(--display);font-style:italic;font-size:1.4rem;font-weight:500}
+.sgap{flex:1}
+.sdev{display:inline-flex;border:1px solid var(--linea);border-radius:2px;overflow:hidden}
+.sdev button{background:var(--blanco);border:none;padding:7px 12px;font-size:.72rem;letter-spacing:.08em;color:var(--tinta2)}
+.sdev button.on{background:var(--vino);color:var(--crema)}
+.sstatus{font-size:.76rem;color:var(--tinta2);letter-spacing:.04em}
+.smsg{font-size:.84rem;color:var(--ok);min-height:0;margin-bottom:8px}
+.smsg:empty{display:none}
+.serr{color:var(--mal)}
+.swrap{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:14px;height:calc(100vh - 150px);min-height:480px}
+.sstage{position:relative;background:#d8d0c2;border:1px solid var(--linea);border-radius:2px;overflow:auto;display:flex;justify-content:center}
+.sstage iframe{border:0;background:#fff;width:100%;height:100%;display:block}
+.sstage iframe.mobile{width:390px;flex:none;box-shadow:0 0 0 1px var(--linea)}
+.sload{position:absolute;inset:0;background:color-mix(in srgb,var(--crema) 80%,transparent);display:none;align-items:center;justify-content:center}
+.sstage.loading .sload{display:flex}
+.sside{background:var(--blanco);border:1px solid var(--linea);border-radius:2px;display:flex;flex-direction:column;min-height:0}
+.stabs{display:flex;border-bottom:1px solid var(--linea)}
+.stabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;padding:11px 6px;font-size:.78rem;letter-spacing:.06em;color:var(--tinta2);margin-bottom:-1px}
+.stabs button.on{color:var(--vino);border-bottom-color:var(--vino)}
+.sbody{overflow:auto;padding:16px;flex:1;min-height:0}
+.shelp{font-size:.9rem;color:var(--tinta2);line-height:1.6}
+.shead{margin-bottom:8px}.shead code{font-size:.72rem;color:var(--tinta2);background:var(--suave);padding:2px 6px;border-radius:2px;margin-left:6px}
+.sacts{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px}
+.sfilter{margin:0 0 12px}
+.ssec{border:1px solid var(--linea);border-radius:2px;margin-bottom:8px;background:#fffaf2}
+.ssec>summary{cursor:pointer;padding:10px 12px;font-size:.88rem;display:flex;justify-content:space-between;gap:8px;list-style:none}
+.ssec>summary::-webkit-details-marker{display:none}
+.ssec[open]>summary{border-bottom:1px solid var(--linea);color:var(--vino)}
+.ssec>:not(summary){margin-left:12px;margin-right:12px}
+.ssec>summary+*{margin-top:12px}
+.ssec>*:last-child{margin-bottom:12px}
+.cnt{font-size:.7rem;background:var(--suave);padding:1px 7px;border-radius:99px;color:var(--tinta2)}
+.fld{margin-bottom:12px;position:relative}
+.fl{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tinta2);margin-bottom:4px}
+.fmini{position:absolute;right:0;top:-3px;display:flex;gap:2px}
+.fmini button{background:none;border:none;font-size:.78rem;color:var(--tinta2);padding:2px 5px}
+.fmini button:hover{color:var(--vino)}
+.ce{background:var(--blanco);border:1px solid var(--linea);border-radius:2px;padding:9px 11px;font-size:.92rem;min-height:38px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.fld label{margin:8px 0 0}
+.sgrp{border:1px solid var(--linea);border-radius:2px;padding:6px 10px 2px;margin-bottom:12px;background:var(--blanco)}
+.sgrp legend{font-size:.74rem;letter-spacing:.08em;color:var(--vino);padding:0 6px}
+.sgrp .sacts{margin-top:4px}
+.ssec .imgfield{grid-template-columns:84px 1fr;padding:10px}.ssec .imgfield .thumb{width:84px;height:66px}
+#st-el .imgfield{grid-template-columns:1fr}#st-el .imgfield .thumb{width:100%;height:150px}
+@media(max-width:980px){.swrap{grid-template-columns:1fr;height:auto}.sstage{height:70vh}.sside{max-height:none}}
+
 /* Editor */
 .etabs{display:flex;gap:2px;border-bottom:1px solid var(--linea);margin-bottom:0}
 .etab{background:none;border:none;padding:9px 16px;font-size:.8rem;letter-spacing:.06em;color:var(--tinta2);border-bottom:2px solid transparent;margin-bottom:-1px}
@@ -176,6 +226,7 @@ dialog .foot{display:flex;gap:10px;justify-content:flex-end;margin-top:6px;flex-
     <span class="brand">Finite Estudio</span>
     <nav class="tabs">
       <button class="tab on" data-view="list">Blog</button>
+      <button class="tab" data-view="sitelist">Sitio</button>
       <button class="tab" data-view="faqs">Preguntas frecuentes</button>
       <button class="tab" data-view="port">Portafolio</button>
     </nav>
@@ -308,6 +359,37 @@ dialog .foot{display:flex;gap:10px;justify-content:flex-end;margin-top:6px;flex-
         <h2>Revisión antes de publicar</h2>
         <p class="sub">Un repaso rápido, con el motivo de cada punto.</p>
         <ul class="seo" id="seo"></ul>
+      </div>
+    </section>
+
+    <!-- Páginas del sitio -->
+    <section id="v-sitelist" hidden>
+      <div class="head">
+        <div><h1>Sitio</h1><p>Elige una página y edítala: haz clic en cualquier texto o foto, o usa las secciones del panel lateral. Cada guardado queda publicado en cerca de un minuto.</p></div>
+      </div>
+      <div id="sitePages"></div>
+    </section>
+
+    <!-- Editor de página -->
+    <section id="v-site" hidden>
+      <div class="sbar">
+        <button class="btn ghost small" id="sBack">← Páginas</button>
+        <b class="stitle" id="sTitle"></b>
+        <span class="sgap"></span>
+        <span class="sdev" id="sDevice"><button class="on" data-d="desktop">Escritorio</button><button data-d="mobile">Móvil</button></span>
+        <button class="btn ghost small" id="sUndo" title="Deshacer (Ctrl+Z)">Deshacer</button>
+        <button class="btn ghost small" id="sRedo" title="Rehacer (Ctrl+Mayús+Z)">Rehacer</button>
+        <a class="link" id="sView" target="_blank" rel="noopener">Ver publicada</a>
+        <span class="sstatus" id="sStatus"></span>
+        <button class="btn" id="sSave" disabled>Guardar y publicar</button>
+      </div>
+      <div class="smsg" id="sMsg"></div>
+      <div class="swrap">
+        <div class="sstage" id="siteStage"><iframe id="siteFrame" sandbox="allow-same-origin" title="Vista de la página"></iframe><div class="sload"><span class="spin"></span></div></div>
+        <aside class="sside">
+          <div class="stabs"><button class="on" data-st="el">Elemento</button><button data-st="sec">Secciones</button><button data-st="pg">Página</button></div>
+          <div class="sbody"><div id="st-el"></div><div id="st-sec" hidden></div><div id="st-pg" hidden></div></div>
+        </aside>
       </div>
     </section>
 
@@ -450,8 +532,9 @@ function confirmLeave() {
   return confirm('Tienes cambios sin publicar. ¿Salir de todos modos?');
 }
 function go(view) {
-  ['list', 'editor', 'faqs', 'port'].forEach((v) => { $(`#v-${v}`).hidden = v !== view; });
-  $$('.tab').forEach((t) => t.classList.toggle('on', t.dataset.view === (view === 'editor' ? 'list' : view)));
+  ['list', 'editor', 'faqs', 'port', 'sitelist', 'site'].forEach((v) => { $(`#v-${v}`).hidden = v !== view; });
+  $$('.tab').forEach((t) => t.classList.toggle('on', t.dataset.view === (view === 'editor' ? 'list' : view === 'site' ? 'sitelist' : view)));
+  $('main').classList.toggle('wide', view === 'site');
   $('#actions').hidden = view !== 'editor';
   clearFlash();
   window.scrollTo(0, 0);
@@ -464,6 +547,7 @@ $$('.tab').forEach((t) => t.addEventListener('click', () => {
   if (v === 'list') refreshPosts();
   if (v === 'faqs') loadHomeFaqs();
   if (v === 'port') loadPortfolio();
+  if (v === 'sitelist' && window.FEsite) window.FEsite.openList();
 }));
 window.addEventListener('beforeunload', (e) => { if (state.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
@@ -959,6 +1043,9 @@ $('#savePort').addEventListener('click', async () => {
   busy(btn, false);
 });
 
+// Lo que comparte con el editor del sitio (editor.js)
+window.FE = { api, toast, flash, busy, esc, state, uploadImage, go };
+
 // ───────────── Arranque ─────────────
 (async function init() {
   if (!state.pw) { showLogin(); return; }
@@ -967,5 +1054,6 @@ $('#savePort').addEventListener('click', async () => {
 
 })();
 </script>
+<script src="/editor.js"></script>
 </body>
 </html>

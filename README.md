@@ -4,6 +4,7 @@ Un panel con contraseña para publicar y editar el blog de finiteestudio.com sin
 
 ## Qué puedes hacer
 
+- **Sitio completo**: abre cualquier página (inicio, paquetes y precios, propuesta, Love Season, recursos, privacidad, gracias, 404 y las herramientas) y edítala de dos maneras sobre el mismo documento. Haz clic en un texto o foto de la página y escribe encima, o usa la pestaña *Secciones* para editar todo en formularios ordenados por sección, con buscador. Se pueden duplicar, mover y eliminar bloques (una reseña, un paquete, una pregunta), cambiar fotos (también subirlas), enlaces, fotos de fondo, y los datos de Google de cada página (título, descripción, foto al compartir). Hay vista de escritorio y de celular, deshacer y rehacer.
 - **Blog**: crear, editar y despublicar posts. El panel arma la página con el mismo menú, pixel de Meta, pie de página y estilos de tu blog, genera los datos de Google (Article y FAQPage), actualiza la tarjeta en `/blog/` y la línea del `sitemap.xml`, todo en un solo commit.
 - **Vista previa** exacta antes de publicar, y una revisión SEO con el motivo de cada punto.
 - **Preguntas frecuentes** de la home: agregar, editar, reordenar.
@@ -37,9 +38,11 @@ Las contraseñas y tokens se escriben solo en el panel de Netlify. No los pegues
 ## Cómo está armado
 
 ```
-index.html                    panel (acceso, listado, editor, FAQ, portafolio)
+index.html                    panel (acceso, blog, sitio, FAQ, portafolio)
+editor.js                     editor de páginas (clic directo y formularios)
 netlify/functions/
   posts-list.js  post-get.js  post-preview.js  post-save.js  post-delete.js
+  pages-list.js  page-get.js  page-save.js
   block-get.js   block-save.js   upload-sign.js
   lib/
     config.js       dominio, rutas, carpetas de Cloudinary, categorías
@@ -47,6 +50,7 @@ netlify/functions/
     sanitize.js     lista blanca de HTML para el cuerpo
     homeblocks.js   FAQ y portafolio de index.html
     github.js       lectura y commit atómico
+    pages.js        páginas editables y validación de guardados
     http.js         contraseña y respuestas
 test/                         pruebas contra tus archivos reales
 ```
@@ -54,6 +58,12 @@ test/                         pruebas contra tus archivos reales
 El menú, las hojas de estilo, el pixel y el pie de página de cada post se copian de tu propio `blog/index.html`. Si algún día cambias el menú ahí, los posts nuevos lo heredan.
 
 ## Cosas que conviene saber
+
+- **Editor del sitio y scripts**: el panel nunca ejecuta ni modifica los scripts de tus páginas (pixel de Meta, carrusel, datos de Google). Se guardan aparte mientras editas y se devuelven idénticos. El servidor rechaza cualquier guardado que cambie un script o agregue controladores como `onclick`.
+- **Lo que genera el código de la página** (las fotos del portafolio y las preguntas de la home) se edita en sus pestañas, no en el editor del sitio, porque en el HTML solo existen como datos dentro de un script.
+- **Fotos de la página que cambian solas** (por ejemplo el carrusel del hero): en la página se ve la primera. Todas aparecen en *Secciones*.
+- **Primer guardado de una página**: el editor reordena detalles menores del código (comillas, un salto de línea). El resultado se ve y funciona igual.
+- **Páginas nuevas**: esta versión edita las que ya existen. Crear páginas desde cero no está incluido.
 
 - **Contraseña única**: sirve para uso personal. Si otra persona necesita acceso propio, el siguiente paso sería Netlify Identity.
 - **Slug fijo**: la dirección de un post no se cambia después de publicarlo, para no romper enlaces ya indexados.
@@ -67,4 +77,5 @@ El menú, las hojas de estilo, el pixel y el pie de página de cada post se copi
 SITE_DIR=/ruta/a/finite-estudio-web node test/roundtrip.js   # motor contra tus 9 posts
 SITE_DIR=/ruta/a/finite-estudio-web node test/functions.js   # funciones con GitHub simulado
 SITE_DIR=/ruta/a/finite-estudio-web node test/devserver.js   # panel local, clave: clave-de-prueba
+node test/editor.js                                          # editor del sitio en un navegador real (con el devserver en :8899)
 ```

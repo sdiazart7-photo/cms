@@ -151,6 +151,62 @@ const test = async (name, fn) => {
     assert.strictEqual((await call('upload-sign', { method: 'POST', body: { kind: 'otra' } })).status, 400);
   });
 
+  console.log('Páginas del sitio');
+  await test('lista las páginas editables y deja fuera el blog y las carpetas internas', async () => {
+    const r = await call('pages-list');
+    assert.strictEqual(r.status, 200);
+    const paths = r.data.pages.map((p) => p.path);
+    assert.strictEqual(paths[0], 'index.html');
+    assert.ok(paths.includes('infoprecios/index.html') && paths.includes('privacidad.html') && paths.includes('herramientas/pago.html'));
+    assert.ok(!paths.some((p) => p.startsWith('blog/') || p.startsWith('netlify/') || p.startsWith('test/')));
+  });
+  await test('lee una página y rechaza rutas peligrosas o del blog', async () => {
+    const r = await call('page-get', { query: { path: 'privacidad.html' } });
+    assert.strictEqual(r.status, 200);
+    assert.ok(r.data.html.includes('<body') && /^[0-9a-f]{40}$/.test(r.data.hash));
+    for (const bad of ['../secret.html', 'blog/index.html', 'netlify/x.html', 'index.js', '/etc/passwd', 'noexiste.html']) {
+      const x = await call('page-get', { query: { path: bad } });
+      assert.ok(x.status === 400 || x.status === 404, `${bad} → ${x.status}`);
+    }
+  });
+  await test('guarda un cambio de texto en un solo commit y devuelve el hash nuevo', async () => {
+    const g = await call('page-get', { query: { path: 'gracias.html' } });
+    const html = g.data.html.replace('Gracias', 'Gracias de verdad');
+    const n = commitsRef.commits.length;
+    const s = await call('page-save', { method: 'POST', body: { path: 'gracias.html', html, baseHash: g.data.hash } });
+    assert.strictEqual(s.status, 200, JSON.stringify(s.data));
+    assert.strictEqual(commitsRef.commits.length, n + 1);
+    assert.strictEqual(commitsRef.commits[n].tree.length, 1);
+    assert.ok(files.get('gracias.html').includes('Gracias de verdad'));
+    assert.strictEqual(s.data.hash, require('crypto').createHash('sha1').update(html).digest('hex'));
+  });
+  await test('avisa con 409 si la página cambió desde que se abrió', async () => {
+    const g = await call('page-get', { query: { path: '404.html' } });
+    files.set('404.html', g.data.html.replace('<body', '<body data-x="1"'));
+    const s = await call('page-save', { method: 'POST', body: { path: '404.html', html: g.data.html + ' ', baseHash: g.data.hash } });
+    assert.strictEqual(s.status, 409);
+  });
+  await test('rechaza guardados que tocan scripts, agregan controladores o dejan la página rota', async () => {
+    const g = await call('page-get', { query: { path: 'recursos/index.html' } });
+    const save = (html) => call('page-save', { method: 'POST', body: { path: 'recursos/index.html', html, baseHash: g.data.hash } });
+    const scriptEdit = g.data.html.replace(/<script>/, '<script>alert(1);');
+    assert.ok(/<script>/.test(g.data.html) ? (await save(scriptEdit)).status === 400 : true);
+    assert.strictEqual((await save(g.data.html.replace('<body', '<body onload="x()"'))).status, 400);
+    assert.strictEqual((await save(g.data.html.replace('</body>', '<script>x()</script></body>'))).status, 400);
+    assert.strictEqual((await save(g.data.html.replace('</body>', '<a href="javascript:x()">x</a></body>'))).status, 400);
+    assert.strictEqual((await save(g.data.html.replace('</body>', '<iframe src="https://x.com"></iframe></body>'))).status, 400);
+    assert.strictEqual((await save('<p>hola</p>')).status, 400);
+    assert.strictEqual((await save('')).status, 400);
+  });
+  await test('sin contraseña no deja leer ni guardar páginas', async () => {
+    assert.strictEqual((await call('page-get', { query: { path: 'index.html' }, password: 'x' })).status, 401);
+    assert.strictEqual((await call('page-save', { method: 'POST', body: { path: 'index.html', html: 'x' }, password: 'x' })).status, 401);
+  });
+  await test('firma subidas para la carpeta del sitio', async () => {
+    const r = await call('upload-sign', { method: 'POST', body: { kind: 'sitio' } });
+    assert.strictEqual(r.data.fields.folder, 'finite-estudio-web/sitio');
+  });
+
   console.log(failures ? `\n${failures} prueba(s) con falla` : '\nTodo en orden');
   process.exit(failures ? 1 : 0);
 })();

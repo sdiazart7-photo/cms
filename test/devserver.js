@@ -30,7 +30,13 @@ http.createServer(async (req, res) => {
     } catch (e) { res.writeHead(500); res.end(JSON.stringify({ error: e.message })); }
     return;
   }
+  if (url.pathname === '/__file') { res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end(fake.files.get(url.searchParams.get('path')) || ''); return; }
   if (url.pathname === '/__state') { res.end(JSON.stringify({ commits: fake.commits.map((c) => c.message) })); return; }
+  if (url.pathname === '/editor.js') {
+    res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8' });
+    res.end(fs.readFileSync(path.join(__dirname, '..', 'editor.js')));
+    return;
+  }
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
   res.end(fs.readFileSync(path.join(__dirname, '..', 'index.html')));
 }).listen(process.env.PORT || 8888, () => console.log(`Panel de prueba en http://localhost:${process.env.PORT || 8888}`));

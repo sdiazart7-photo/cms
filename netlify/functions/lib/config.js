@@ -24,6 +24,7 @@ module.exports = {
   uploadFolders: {
     blog: 'finite-estudio-web/blog',
     portafolio: 'finite-estudio-web/portafolio',
+    sitio: 'finite-estudio-web/sitio',
   },
 
   categories: ['Lugares', 'Fotografía', 'Planeación'],
