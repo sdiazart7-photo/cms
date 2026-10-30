@@ -11,7 +11,7 @@ const RENAME = { b: 'strong', i: 'em', h1: 'h2', h5: 'h4', h6: 'h4' };
 const FULL = {
   p: [], h2: [], h3: [], h4: [], strong: [], em: [], br: [], hr: [], ul: [], ol: [], li: [], blockquote: [],
   a: ['href', 'target', 'rel', 'data-track', 'class'],
-  img: ['src', 'alt', 'loading'],
+  img: ['src', 'alt', 'width', 'height', 'loading', 'decoding'],
   div: ['class'],
 };
 const INLINE = { strong: [], em: [], br: [], a: ['href', 'target', 'rel'] };
@@ -95,12 +95,15 @@ function sanitize(html, { inline = false } = {}) {
         if (!v) continue;
       } else if (name === 'target') { if (v !== '_blank') continue; }
       else if (name === 'loading') { if (v !== 'lazy' && v !== 'eager') continue; }
+      else if (name === 'decoding') { if (v !== 'async' && v !== 'sync' && v !== 'auto') continue; }
+      else if (name === 'width' || name === 'height') { if (!/^\d{1,5}$/.test(v)) continue; }
       keep.push(` ${name}="${escAttr(v)}"`);
     }
     if (tag === 'a' && attrs.target === '_blank' && attrs.rel === undefined) keep.push(' rel="noopener"');
     if (tag === 'img' && !keep.some((k) => k.startsWith(' src='))) continue;
     if (tag === 'img' && !keep.some((k) => k.startsWith(' alt='))) keep.push(' alt=""');
     if (tag === 'img' && !keep.some((k) => k.startsWith(' loading='))) keep.push(' loading="lazy"');
+    if (tag === 'img' && !keep.some((k) => k.startsWith(' decoding='))) keep.push(' decoding="async"');
 
     // Un div sin clase permitida no aporta nada: si contiene texto suelto se vuelve párrafo.
     if (tag === 'div') {

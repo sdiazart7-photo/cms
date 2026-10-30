@@ -60,13 +60,29 @@ function divBlock(html, openRe) {
 
 // ───────────────────────── tarjetas del índice ─────────────────────────
 
-const CARD_RE = /<a href="\/blog\/([^"\/]+)\/" class="blog-card">\s*<img src="([^"]*)" alt="([^"]*)">\s*<span class="tag">([\s\S]*?)<\/span>\s*<h3>([\s\S]*?)<\/h3>\s*(?:<span class="date">([\s\S]*?)<\/span>\s*)?<\/a>/g;
+const CARD_RE = /<a href="\/blog\/([^"\/]+)\/" class="blog-card">\s*<img ([^>]*)>\s*<span class="tag">([\s\S]*?)<\/span>\s*<h3>([\s\S]*?)<\/h3>\s*(?:<span class="date">([\s\S]*?)<\/span>\s*)?<\/a>/g;
 
 function indexBlock(indexHtml) {
   const b = divBlock(indexHtml, /<div class="wrap blog-list">/);
   if (!b) throw new HttpError(500, 'No encontré <div class="wrap blog-list"> en blog/index.html. Revisa si cambió la estructura.');
   return b;
 }
+
+// Atributos de una etiqueta <img>, en cualquier orden. "extra" son los que no son src ni alt
+// (width, height, loading, decoding), para volver a escribirlos igual que como estaban.
+function imgAttrs(raw) {
+  const out = { extra: [] };
+  const re = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
+  let m;
+  while ((m = re.exec(raw))) {
+    const name = m[1].toLowerCase();
+    const v = m[2] !== undefined ? m[2] : m[3] !== undefined ? m[3] : m[4] !== undefined ? m[4] : '';
+    if (name === 'src' || name === 'alt') out[name] = v;
+    else if (['width', 'height', 'loading', 'decoding'].includes(name)) out.extra.push([name, v]);
+  }
+  return out;
+}
+const CARD_DEFAULT_EXTRA = [['width', '600'], ['height', '450'], ['loading', 'lazy'], ['decoding', 'async']];
 
 function parseCards(indexHtml) {
   const b = indexBlock(indexHtml);
@@ -75,9 +91,10 @@ function parseCards(indexHtml) {
   let m;
   CARD_RE.lastIndex = 0;
   while ((m = CARD_RE.exec(inner))) {
+    const im = imgAttrs(m[2]);
     cards.push({
-      slug: m[1], img: unesc(m[2]), alt: unesc(m[3]), tag: unesc(plain(m[4])), title: unesc(m[5].trim()),
-      date: isoFromFecha(m[6] || ''),
+      slug: m[1], img: unesc(im.src || ''), alt: unesc(im.alt || ''), imgExtra: im.extra, tag: unesc(plain(m[3])), title: unesc(m[4].trim()),
+      date: isoFromFecha(m[5] || ''),
     });
   }
   const declared = (inner.match(/class="blog-card"/g) || []).length;
@@ -87,10 +104,11 @@ function parseCards(indexHtml) {
   return cards;
 }
 
-function renderCard(c, { withDate }) {
+function renderCard(c, { withDate, lazy }) {
+  const extra = !lazy && c.imgExtra && c.imgExtra.length ? c.imgExtra : CARD_DEFAULT_EXTRA;
   const lines = [
     `    <a href="/blog/${c.slug}/" class="blog-card">`,
-    `      <img src="${escAttr(cld(c.img, TX.card))}" alt="${escAttr(c.alt)}">`,
+    `      <img src="${escAttr(cld(c.img, TX.card))}" alt="${escAttr(c.alt)}"${extra.map(([k, v]) => ` ${k}="${escAttr(v)}"`).join('')}>`,
     `      <span class="tag">${esc(c.tag)}</span>`,
     `      <h3>${esc(c.title)}</h3>`,
   ];
@@ -147,7 +165,7 @@ function buildFaq(post) {
 function buildRelated(post, cards) {
   const picked = post.related.map((s) => cards.find((c) => c.slug === s)).filter((c) => c && c.slug !== post.slug);
   if (!picked.length) return '';
-  const items = picked.map((c) => renderCard(c, { withDate: false }).split('\n').map((l) => `    ${l}`).join('\n')).join('\n');
+  const items = picked.map((c) => renderCard(c, { withDate: false, lazy: true }).split('\n').map((l) => `    ${l}`).join('\n')).join('\n');
   return `<section class="section-suave related-posts">
   <div class="wrap">
     <div class="center-copy" style="margin-bottom:40px;">
@@ -192,7 +210,7 @@ function buildPost(post, { shell, cards, preview = false, today }) {
   }
 
   const grid = post.gridImages.length
-    ? `  <div class="article-cover-grid">\n${post.gridImages.map((g) => `    <img src="${escAttr(cld(g.src, TX.grid))}" alt="${escAttr(g.alt)}">`).join('\n')}\n  </div>\n\n`
+    ? `  <div class="article-cover-grid">\n${post.gridImages.map((g) => `    <img src="${escAttr(cld(g.src, TX.grid))}" alt="${escAttr(g.alt)}" width="500" height="667">`).join('\n')}\n  </div>\n\n`
     : '';
   const faq = buildFaq(post);
 
@@ -256,10 +274,10 @@ function parsePost(html, slug, cards) {
   const gridBlock = divBlock(html, /<div class="article-cover-grid">/);
   const gridImages = [];
   if (gridBlock) {
-    const re = /<img src="([^"]*)" alt="([^"]*)">/g;
+    const re = /<img ([^>]*)>/g;
     const inner = html.slice(gridBlock.innerStart, gridBlock.innerEnd);
     let m;
-    while ((m = re.exec(inner))) gridImages.push({ src: unesc(m[1]), alt: unesc(m[2]) });
+    while ((m = re.exec(inner))) { const im = imgAttrs(m[1]); gridImages.push({ src: unesc(im.src || ''), alt: unesc(im.alt || '') }); }
   }
 
   const bodyBlock = divBlock(html, /<div class="article-body[^"]*">/);
@@ -357,7 +375,7 @@ function normalizePost(input, { isNew }) {
   post.related.forEach((s) => { if (!SLUG_RE.test(s)) bad('Un artículo relacionado tiene una dirección inválida.'); });
 
   let body = tidyBody(input.bodyHtml);
-  body = body.replace(/<img src="([^"]+)"/g, (m, u) => `<img src="${cld(u, TX.body)}"`);
+  body = body.replace(/(<img\b[^>]*?\ssrc=")([^"]+)(")/g, (m, a, u, z) => `${a}${cld(u, TX.body)}${z}`);
   if (plain(body).length < 80) bad('El cuerpo del artículo está vacío o es demasiado corto.');
   post.bodyHtml = body;
   post.isNew = !!isNew;
